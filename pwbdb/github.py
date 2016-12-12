@@ -5,6 +5,8 @@ from github import Github
 
 GITHUB_REPO = 'magul/pywikibot-core'
 
+_pull_requests = []
+
 
 def push_branch(local_branch):
     name = local_branch.name
@@ -24,7 +26,10 @@ def open_pull_request(branch, creds=None):
 
     repo = github.get_repo(GITHUB_REPO)
 
-    pull_requests = [p for p in repo.get_pulls() if p.head.ref == name]
+    global _pull_requests
+    if len(_pull_requests) == 0:
+        _pull_requests = [p for p in repo.get_pulls()]
+    pull_requests = [p for p in _pull_requests if p.head.ref == name]
     if len(pull_requests) > 0:
         return pull_requests[0]
     return repo.create_pull(title=name, body='', head=name, base='master')
