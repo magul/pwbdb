@@ -25,7 +25,7 @@ def test_downloaded_travis_builds(test_func):
             jfile = path.join(bdir, j)
             with gzip.open(jfile) as f:
                 if test_func(str(f.read())):
-                    print('{}/{}'.format(b, j))
+                    yield b, j.split('.')[0]
 
 
 def get_travis_logs():

@@ -32,3 +32,18 @@ def fetch_branch(change):
     if local_ref not in repo.branches:
         gerrit_remote.fetch('{}:{}'.format(remote_ref, local_ref))
     return repo.branches[local_ref]
+
+
+def get_unanswered_changes():
+    response = requests.get(
+        '{}changes/?q=status:open+project:pywikibot/core+branch:master&o=MESSAGES'.format(
+            GERRIT_REST_API_ROOT))
+    changes = json.loads(response.text[4:])
+    for ch in changes:
+        message_counter, last_comment_author = -1, 75
+        while last_comment_author == 75:
+            last_comment_author = ch['messages'][message_counter]['author']['_account_id']
+            message_counter += 1
+
+        if last_comment_author != 1000:
+            print('https://gerrit.wikimedia.org/r/#/c/{}/'.format(ch['_number']))
