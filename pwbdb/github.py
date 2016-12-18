@@ -33,3 +33,13 @@ def open_pull_request(branch, creds=None):
     if len(pull_requests) > 0:
         return pull_requests[0]
     return repo.create_pull(title=name, body='', head=name, base='master')
+
+
+def get_branches(creds=None):
+    if creds is None:
+        creds = {}
+
+    github = Github(creds.GITHUB_USER, creds.GITHUB_PASS)
+
+    repo = github.get_repo(GITHUB_REPO)
+    return repo.get_branches()

@@ -18,6 +18,12 @@ def get_changes():
     return json.loads(response.text[4:])
 
 
+def newest_revision_number(change):
+    revisions = change['revisions']
+    newest_revision = max(revisions.values(), key=lambda v: v['_number'])
+    return newest_revision['_number']
+
+
 def fetch_branch(change):
     repo = Repo.init(path.join(path.dirname(__file__), '..', 'pywikibot-core'))
     gerrit_remote = repo.remotes['gerrit']
@@ -27,7 +33,7 @@ def fetch_branch(change):
     remote_ref = newest_revision['ref']
 
     local_ref = 'gerrit-{}-{}'.format(
-        change['_number'], newest_revision['_number'])
+        change['_number'], newest_revision_number(change))
 
     if local_ref not in repo.branches:
         gerrit_remote.fetch('{}:{}'.format(remote_ref, local_ref))

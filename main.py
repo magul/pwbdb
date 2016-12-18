@@ -28,9 +28,22 @@ def test_downloaded_travis_builds(test_func):
                     yield b, j.split('.')[0]
 
 
+def show_github_branches_without_gerrit():
+    changes = gerrit.get_changes()
+    branches = github.get_branches(creds=credentials)
+    branches_with_gerrit = {'gerrit-{}-{}'.format(
+        change['_number'], gerrit.newest_revision_number(change)
+    ) for change in changes}
+    branches_without_gerrit = {b.name for b in branches
+                               if b.name not in ('master', '2.0') and
+                               b.name not in branches_with_gerrit}
+    for b in branches_without_gerrit:
+        print(b)
+
+
 def get_travis_logs():
     travis.get_travis_logs()
 
 
 if __name__ == '__main__':
-    get_travis_logs()
+    show_github_branches_without_gerrit()
