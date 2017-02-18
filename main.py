@@ -14,7 +14,8 @@ def create_github_pr_from_gerrit():
     for change in tqdm(gerrit.get_changes()):
         local_branch = gerrit.fetch_branch(change)
         github_ref = github.push_branch(local_branch)
-        github.open_pull_request(github_ref, creds=credentials)
+        pr = github.open_pull_request(github_ref, creds=credentials)
+        gerrit.post_comment_about_CI(change, pr, creds=credentials)
 
 
 def test_downloaded_travis_builds(test_func):
@@ -46,5 +47,6 @@ def get_travis_logs():
 
 
 if __name__ == '__main__':
-    create_github_pr_from_gerrit()
-    show_github_branches_without_gerrit()
+    while True:
+        create_github_pr_from_gerrit()
+        show_github_branches_without_gerrit()

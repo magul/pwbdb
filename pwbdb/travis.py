@@ -5,30 +5,35 @@ import os
 from os import path
 
 import requests
+from requests.auth import HTTPBasicAuth
 from tqdm import tqdm
 from travispy import TravisPy
+
+from .github import GITHUB_REPO, UPSTREAM_GITHUB_REPO
 
 travis_repo = 'wikimedia/pywikibot-core'
 logs_dir = path.join(path.dirname(__file__), '..', 'travis-logs')
 
 
-def get_travis_build(github_pr):
-    statuses = requests.get(github_pr.raw_data['statuses_url']).json()
+def get_build_url(commit, build_type='push', creds=None, upstream_repo=False):
+    if creds is None:
+        creds = {}
+
+    statuses = requests.get(
+        'https://api.github.com/repos/{}/statuses/{}'.format(
+            UPSTREAM_GITHUB_REPO if upstream_repo else GITHUB_REPO,
+            commit.sha),
+        auth=HTTPBasicAuth(creds.GITHUB_USER, creds.GITHUB_PASS)).json()
     pr_statuses = [
         s for s in statuses
-        if s['context'] == 'continuous-integration/travis-ci/pr']
+        if s['context'] == 'continuous-integration/travis-ci/{}'.format(build_type)]
 
     if len(pr_statuses) == 0:
-        return None
+        if upstream_repo:
+            return None
+        return get_build_url(commit, build_type, creds, upstream_repo=True)
 
-    pr_status = max(pr_statuses, key=lambda s: s['created_at'])
-    travis = TravisPy()
-    build = travis.build(pr_status['target_url'].split('/')[-1])
-
-    if build.state in ('creted', 'started'):
-        return None
-
-    return build
+    return max(pr_statuses, key=lambda s: s['created_at'])['target_url']
 
 
 def get_travis_logs():

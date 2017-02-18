@@ -3,6 +3,7 @@
 from github import Github
 
 
+UPSTREAM_GITHUB_REPO = 'wikimedia/pywikibot-core'
 GITHUB_REPO = 'magul/pywikibot-core'
 
 _pull_requests = []
