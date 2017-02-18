@@ -5,9 +5,11 @@ from os import path
 
 import requests
 from git import Repo
+from requests.auth import HTTPDigestAuth
 
 
 GERRIT_REST_API_ROOT = 'https://gerrit.wikimedia.org/r/'
+GERRIT_AUTH_REST_API_ROOT = '{}a/'.format(GERRIT_REST_API_ROOT)
 
 
 def get_changes():
@@ -38,6 +40,18 @@ def fetch_branch(change):
     if local_ref not in repo.branches:
         gerrit_remote.fetch('{}:{}'.format(remote_ref, local_ref))
     return repo.branches[local_ref]
+
+
+def comment_on_newest_revision(change, message, creds):
+    newest_revision = newest_revision_number(change)
+    response = requests.post(
+        '{}/changes/{}/revisions/{}/review'.format(
+            GERRIT_AUTH_REST_API_ROOT,
+            change['_number'],
+            newest_revision),
+        json={'message': message},
+        auth=HTTPDigestAuth(creds.GERRIT_HTTP_USER, creds.GERRIT_HTTP_PASS))
+    return json.loads(response.text[4:])
 
 
 def get_unanswered_changes():

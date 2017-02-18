@@ -46,4 +46,5 @@ def get_travis_logs():
 
 
 if __name__ == '__main__':
+    create_github_pr_from_gerrit()
     show_github_branches_without_gerrit()
