@@ -28,8 +28,15 @@ def newest_revision_number(change):
     return newest_revision['_number']
 
 
+def fetch_master():
+    repo = Repo.init(path.join(path.dirname(__file__), '..', 'pywikibot-core'), bare=True)
+    gerrit_remote = repo.remotes['gerrit']
+    gerrit_remote.fetch('master:master')
+    return repo.branches['master']
+
+
 def fetch_branch(change):
-    repo = Repo.init(path.join(path.dirname(__file__), '..', 'pywikibot-core'))
+    repo = Repo.init(path.join(path.dirname(__file__), '..', 'pywikibot-core'), bare=True)
     gerrit_remote = repo.remotes['gerrit']
 
     revisions = change['revisions']

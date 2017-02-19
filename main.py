@@ -10,7 +10,13 @@ import credentials
 from pwbdb import gerrit, github, travis
 
 
+def update_master():
+    local_master = gerrit.fetch_master()
+    github.push_branch(local_master)
+
+
 def create_github_pr_from_gerrit():
+    update_master()
     for change in tqdm(gerrit.get_changes()):
         local_branch = gerrit.fetch_branch(change)
         github_ref = github.push_branch(local_branch)
@@ -48,5 +54,8 @@ def get_travis_logs():
 
 if __name__ == '__main__':
     while True:
-        create_github_pr_from_gerrit()
-        show_github_branches_without_gerrit()
+        try:
+            create_github_pr_from_gerrit()
+            show_github_branches_without_gerrit()
+        except:
+            pass
