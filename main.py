@@ -17,6 +17,7 @@ def update_master():
 
 def create_github_pr_from_gerrit():
     update_master()
+    github.refresh_pull_requests()
     for change in tqdm(gerrit.get_changes()):
         local_branch = gerrit.fetch_branch(change)
         github_ref = github.push_branch(local_branch)

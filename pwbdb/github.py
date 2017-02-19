@@ -6,6 +6,7 @@ from github import Github
 UPSTREAM_GITHUB_REPO = 'wikimedia/pywikibot-core'
 GITHUB_REPO = 'magul/pywikibot-core'
 
+
 _pull_requests = []
 
 
@@ -15,6 +16,11 @@ def push_branch(local_branch):
     github = repo.remotes['github']
 
     return github.push(name)[0].remote_ref
+
+
+def refresh_pull_requests():
+    global _pull_requests
+    _pull_requests = []
 
 
 def open_pull_request(branch, creds=None):
